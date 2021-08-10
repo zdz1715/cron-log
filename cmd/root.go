@@ -20,6 +20,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/spf13/cobra"
 	"github.com/zdz1715/cron-log/pkg"
+	"strings"
 )
 
 type options struct {
@@ -31,7 +32,7 @@ var opt options
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cron-log [flags] args",
+	Use:   "cron-log [flags] COMMAND [args...]",
 	Short: "Format and record Linux Cron output ",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,7 +41,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		pkg.Collect(opt.Shell, opt.User, "echo sss")
+		pkg.Collect(opt.Shell, opt.User, strings.Join(args, " "))
 		return nil
 	},
 }
