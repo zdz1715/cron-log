@@ -1,4 +1,4 @@
-GOOS="linux darwin"
+GOOS="linux"
 GOARCH="amd64"
 BIN="./bin"
 
