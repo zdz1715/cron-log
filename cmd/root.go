@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/spf13/cobra"
 	"github.com/zdz1715/cron-log/pkg"
@@ -26,6 +25,7 @@ import (
 type options struct {
 	User  string `json:"user"`
 	Shell string `valid:"in(sh|bash)" json:"shell"`
+	PID   string
 }
 
 var opt options
@@ -36,12 +36,13 @@ var rootCmd = &cobra.Command{
 	Short: "Format and record Linux Cron output ",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := govalidator.ValidateStruct(opt)
-		fmt.Printf("%+v\n", opt)
+		if _, err := govalidator.ValidateStruct(opt); err != nil {
+			return err
+		}
+		err := pkg.Collect(opt.Shell, opt.User, strings.Join(args, " "), opt.PID)
 		if err != nil {
 			return err
 		}
-		pkg.Collect(opt.Shell, opt.User, strings.Join(args, " "))
 		return nil
 	},
 }
@@ -54,5 +55,6 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().StringVarP(&opt.User, "user", "u", "root", "executing user")
-	rootCmd.Flags().StringVarP(&opt.Shell, "shell", "s", "sh", "sh:'/bin/sh' | bash:'/bin/bash'")
+	rootCmd.Flags().StringVar(&opt.Shell, "shell", "sh", "sh:'/bin/sh' | bash:'/bin/bash'")
+	rootCmd.Flags().StringVar(&opt.PID, "pid", "/var/run/crond.pid", "cron pid path")
 }
